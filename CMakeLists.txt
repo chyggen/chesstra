@@ -24,7 +24,7 @@ if (NOT NCURSESW_LIBRARY)
     message(FATAL_ERROR "ncursesw library not found")
 endif()
 
-add_executable(chesstra app/chesstra.cpp)
+add_executable(chesstra app/chesstra.cpp lib/display.cpp)
 target_include_directories(chesstra PUBLIC include ${CURSES_INCLUDE_DIRS})
 add_compile_options(-lncursesw)
 target_link_libraries(chesstra PUBLIC ${NCURSESW_LIBRARY})
