@@ -1,7 +1,7 @@
-#include "display.h"
 #include <clocale>
 #include <iostream>
 #include <sstream>
+#include "game.h"
 
 int main()
 {
@@ -16,8 +16,6 @@ int main()
         ss << "you typed:" << std::endl << 
             str << std::endl;
         d.writeUserOutput(ss.str());
-        
-        
     }
 
     return 0;
