@@ -2,6 +2,7 @@
 #include <board.h>
 #include <iostream>
 #include <stdexcept>
+#include <cassert>
 
 namespace ctra
 {
@@ -48,7 +49,7 @@ namespace ctra
         return m_placement[8*y +x];
     }
 
-    bool board::assignEmpty(ctra::pieceID id, ctra::colour c, ctra::square sq)
+    bool board::assignPiece(ctra::pieceID id, ctra::colour c, ctra::square sq)
     {
         int index = static_cast<int>(sq);
         if (index >= 0 && index < 64)
@@ -65,10 +66,33 @@ namespace ctra
         }
         else
         {
-            throw std::runtime_error("invalid square provided to assignEmpty");
+            throw std::runtime_error("invalid square provided to assignPiece");
         }
     }
 
+    bool board::movePiece(ctra::square src, ctra::square dest)
+    {
+        int src_index = static_cast<int>(src);
+        int dest_index = static_cast<int>(dest);
+        if (src_index >= 0 && src_index < 64 &&
+            dest_index >= 0 && dest_index < 64)
+        {
+            if (m_placement[src] != nullptr)
+            {
+                m_placement[dest] = std::move(m_placement[src]);
+                assert(m_placement[src] == nullptr);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            throw std::runtime_error("invalid square provided to movePiece");
+        }
+    }
 
     constexpr ctra::square getSquare(int x, int y) 
     {

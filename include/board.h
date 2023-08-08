@@ -37,7 +37,8 @@ namespace ctra
         bool importFen(std::string fen);
         std::shared_ptr<ctra::piece> at(ctra::square sq) const;
         std::shared_ptr<ctra::piece> at(int x, int y) const;
-        bool assignEmpty(ctra::pieceID id, ctra::colour c, ctra::square sq);
+        bool assignPiece(ctra::pieceID id, ctra::colour c, ctra::square sq);
+        bool movePiece(ctra::square src, ctra::square dest);
 
     private:
 

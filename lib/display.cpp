@@ -38,14 +38,12 @@ namespace ctra
         {
             for (int x = 0; x < 8; ++x)
             {
+                wclear(m_sqaures[y][x]);
                 if (b.at(x,y) != nullptr)
                 {
-                    wclear(m_sqaures[y][x]);
                     wprintw(m_sqaures[y][x], b.at(x,y)->getDisplayChar().c_str());
-                    wrefresh(m_sqaures[y][x]);
-                    // std::cout << "doing stuff\n\n\n\n\n";
                 }
-                // std::cout << "doing stuff\n";
+                wrefresh(m_sqaures[y][x]);
             }
         }
     }
