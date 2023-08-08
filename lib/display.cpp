@@ -17,17 +17,27 @@ namespace ctra
         {
             for (int x = 0; x < 8; ++x)
             {
-                m_sqaures[y][x] = newwin(1,2,y,2*x);
+                m_sqaures[y][x] = newwin(1, 2, y, 2*x + BOARD_X_OFFSET);
                 wbkgd(m_sqaures[y][x], COLOR_PAIR(((x+y) % 2)+1));
                 wprintw(m_sqaures[y][x], s);
                 wrefresh(m_sqaures[y][x]);
             }
         }
-        
-        m_commandWin = newwin(1, 20, 
+
+        m_xCoordWin = newwin(1, 16, 8, 2);
+        // wprintw(m_xCoordWin, "a b c d e f g h ");
+        wprintw(m_xCoordWin, u8"ａｂｃｄｅｆｇｈ");
+        wrefresh(m_xCoordWin);
+        m_yCoordWin = newwin(8, 2, 0, 0);
+        wprintw(m_yCoordWin, "8 7 6 5 4 3 2 1 ");
+        // wprintw(m_xCoordWin, u8"１２３４５６７８");
+
+        wrefresh(m_yCoordWin);
+
+        m_commandWin = newwin(1, 30, 
             ctra::display::COMMAND_WIN_Y, 
             ctra::display::COMMAND_WIN_X);
-        m_userOutWin = newwin(2, 20, 3, 20);
+        m_userOutWin = newwin(2, 30, 3, 20);
         m_gameStatusWin = newwin(1, 20, 1, 20);
         
     }
@@ -47,7 +57,6 @@ namespace ctra
             }
         }
     }
-
 
     std::string display::readUserInput()
     {

@@ -29,6 +29,7 @@ add_executable(chesstra app/chesstra.cpp
     # lib/game.cpp 
     lib/display.cpp
     lib/board.cpp
+    lib/command_parser.cpp
     lib/pieces/piece.cpp
     lib/pieces/king.cpp
     lib/pieces/queen.cpp
@@ -46,6 +47,7 @@ add_executable(board_test app/board_test.cpp
     # lib/game.cpp 
     lib/display.cpp
     lib/board.cpp
+    lib/command_parser.cpp
     lib/pieces/piece.cpp
     lib/pieces/king.cpp
     lib/pieces/queen.cpp

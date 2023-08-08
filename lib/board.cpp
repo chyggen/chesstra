@@ -77,7 +77,7 @@ namespace ctra
         if (src_index >= 0 && src_index < 64 &&
             dest_index >= 0 && dest_index < 64)
         {
-            if (m_placement[src] != nullptr)
+            if ((m_placement[src] != nullptr) && (src != dest))
             {
                 m_placement[dest] = std::move(m_placement[src]);
                 assert(m_placement[src] == nullptr);
@@ -94,7 +94,7 @@ namespace ctra
         }
     }
 
-    constexpr ctra::square getSquare(int x, int y) 
+    ctra::square getSquare(int x, int y) 
     {
         if( x > 7 || x < 0 || y > 7 || y < 0 )
         {
@@ -102,7 +102,7 @@ namespace ctra
         }
         else
         {
-            return static_cast<ctra::square>(8*y + x);
+            return static_cast<ctra::square>(8*(7-y) + x);
         }
     }
 }

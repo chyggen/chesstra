@@ -54,5 +54,5 @@ namespace ctra
         
     };
 
-    constexpr ctra::square getSquare(int x, int y); 
+    ctra::square getSquare(int x, int y); 
 }

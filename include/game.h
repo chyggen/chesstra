@@ -4,6 +4,8 @@
 #include "pieces.h"
 #include "display.h"
 #include "board.h"
+#include "command_parser.h"
+
 
 namespace ctra
 {

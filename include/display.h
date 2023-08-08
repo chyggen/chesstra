@@ -29,12 +29,18 @@ namespace ctra
     private:
 
         WINDOW* m_sqaures[8][8];
+        WINDOW* m_xCoordWin;
+        WINDOW* m_yCoordWin;
         WINDOW* m_commandWin;
         WINDOW* m_gameStatusWin;
         WINDOW* m_userOutWin;
 
+
         static const int COMMAND_WIN_Y = 6;
         static const int COMMAND_WIN_X = 20;
+
+        // offset the board to make room for board coordinates
+        static const int BOARD_X_OFFSET = 2;
 
     };
 }
