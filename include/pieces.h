@@ -31,7 +31,8 @@ namespace ctra
         
         piece(colour c);
 
-        // piece() = delete;
+        //piece is not default constructible
+        piece() = delete;
 
         // virtual std::set<ctra::square> getValidMoves();
         // virtual bool move(ctra::square); // move a piece to specified square
@@ -63,27 +64,52 @@ namespace ctra
 
     class queen : public piece
     {
+    public:
         queen(ctra::colour c);
+        ~queen() override;
+
+        std::string getDisplayChar() override;
+        ctra::pieceID getPieceId() override;
     };
 
     class rook : public piece
     {
+    public:
         rook(ctra::colour c);
+        ~rook() override;
+
+        std::string getDisplayChar() override;
+        ctra::pieceID getPieceId() override;
     };
 
     class bishop : public piece
     {
+    public:
         bishop(ctra::colour c);
+        ~bishop() override;
+
+        std::string getDisplayChar() override;
+        ctra::pieceID getPieceId() override;
     };
 
     class knight : public piece
     {
+    public:
         knight(ctra::colour c);
+        ~knight() override;
+
+        std::string getDisplayChar() override;
+        ctra::pieceID getPieceId() override;
     };
 
     class pawn : public piece 
     {
+    public:
         pawn(ctra::colour c);
+        ~pawn() override;
+
+        std::string getDisplayChar() override;
+        ctra::pieceID getPieceId() override;
     };
 
     std::shared_ptr<ctra::piece> newPiece(pieceID id, colour c);

@@ -2,18 +2,8 @@
 
 namespace ctra
 {
-    // king::king(colour c) : m_colour(c)
-    // {
-
-    // }
-
-    king::king(colour c) : piece(c) 
-    {
-        // king.colour = c
-    }
-
+    king::king(colour c) : piece(c) {}
     king::~king() {}
-    
 
     std::string king::getDisplayChar()
     {

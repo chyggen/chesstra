@@ -31,11 +31,11 @@ add_executable(chesstra app/chesstra.cpp
     lib/board.cpp
     lib/pieces/piece.cpp
     lib/pieces/king.cpp
-    # lib/pieces/queen.cpp
-    # lib/pieces/rook.cpp
-    # lib/pieces/bishop.cpp
-    # lib/pieces/knight.cpp
-    # lib/pieces/pawn.cpp
+    lib/pieces/queen.cpp
+    lib/pieces/rook.cpp
+    lib/pieces/bishop.cpp
+    lib/pieces/knight.cpp
+    lib/pieces/pawn.cpp
 )
 target_include_directories(chesstra PUBLIC include ${CURSES_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-lncursesw)
@@ -48,11 +48,11 @@ add_executable(board_test app/board_test.cpp
     lib/board.cpp
     lib/pieces/piece.cpp
     lib/pieces/king.cpp
-    # lib/pieces/queen.cpp
-    # lib/pieces/rook.cpp
-    # lib/pieces/bishop.cpp
-    # lib/pieces/knight.cpp
-    # lib/pieces/pawn.cpp
+    lib/pieces/queen.cpp
+    lib/pieces/rook.cpp
+    lib/pieces/bishop.cpp
+    lib/pieces/knight.cpp
+    lib/pieces/pawn.cpp
 )
 target_include_directories(board_test PUBLIC include ${CURSES_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-lncursesw)
