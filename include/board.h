@@ -26,6 +26,30 @@ namespace ctra
         SQUARE_INVALID
     };
 
+    // movePiece return type to indicate reason for a failed move
+    enum class moveResult
+    {
+        // attempt to move a white piece on black's turn, or vice-versa
+        WRONG_TURN = -1,
+
+        // attempt to capture a friendly piece
+        FRIENDLY_CAPTURE = -2,
+
+        // no piece exists on the source square
+        EMPTY_SRC = -3,
+
+        // attempt to move a piece to the same square it started on
+        SAME_SRC_DEST = -4,
+
+        // requested move violates other chess rules
+        ILLEGAL = -5,
+
+        // valid move 
+        OKAY = 0
+    };
+
+    bool isLegal(moveResult r);
+
     class board
     {
     public:
@@ -38,7 +62,11 @@ namespace ctra
         std::shared_ptr<ctra::piece> at(ctra::square sq) const;
         std::shared_ptr<ctra::piece> at(int x, int y) const;
         bool assignPiece(ctra::pieceID id, ctra::colour c, ctra::square sq);
-        bool movePiece(ctra::square src, ctra::square dest);
+        moveResult movePiece(ctra::square src, ctra::square dest);
+
+        // getters
+        bool whiteToMove(){return m_whiteToMove;}
+        unsigned int fullmoveCounter(){return m_fullmoveCounter;}
 
     private:
 
@@ -51,8 +79,15 @@ namespace ctra
         ctra::square m_enPassantTarget;
         unsigned int m_halfmoveClock;
         unsigned int m_fullmoveCounter;
+
+        // Other usefull fields for move logic
+        bool m_wasPromotion;
+
+        void updateBoardFlags(ctra::square src, ctra::square dest);
+
         
     };
 
     ctra::square getSquare(int x, int y); 
+    std::pair<int,int> getCoords(ctra::square sq); 
 }

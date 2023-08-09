@@ -7,6 +7,16 @@ namespace ctra
         m_colour(c)
     {}
 
+    ctra::colour piece::getPieceColour()
+    {
+        return m_colour;
+    }
+
+    bool piece::isWhite()
+    {
+       return m_colour == colour::white;
+    }
+
     std::shared_ptr<ctra::piece> newPiece(pieceID id, colour c){
         if (c != colour::black && c != colour::white)
         {

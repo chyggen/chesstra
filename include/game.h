@@ -13,6 +13,27 @@ namespace ctra
     {
     public:
 
+        enum class status
+        {
+            // value of 0 indicates in progress
+            IN_PROG = 0,
+
+            // values greater than 0 indicate a victory
+            CHECKMATE = 1,
+
+            // values less than 0 indicate a draw
+            DRAW_AGREEMENT = -1
+        };
+        
+        void start();
+
+
     private:
+
+        ctra::display disp;
+        ctra::board board;
+
+        void writeGameStatus(unsigned int fullmoveCount, bool whiteToMove, game::status stat);
+
     };
 };

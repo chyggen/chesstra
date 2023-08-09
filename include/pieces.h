@@ -19,10 +19,8 @@ namespace ctra
     enum class colour
     {
         white,
-        black,
-        empty
+        black
     };
-
 
     // Base piece class. A square containing a piece of this class acts like an empty square
     class piece
@@ -34,13 +32,14 @@ namespace ctra
         //piece is not default constructible
         piece() = delete;
 
-        // virtual std::set<ctra::square> getValidMoves();
-        // virtual bool move(ctra::square); // move a piece to specified square
+        // virtual std::set<ctra::square> getValidMoves() = 0;
         // virtual std::string algebraic(ctra::square); // gets a move in algebraic notation
         virtual std::string getDisplayChar() = 0; 
         virtual ctra::pieceID getPieceId() = 0; 
         virtual ~piece() {}
 
+        ctra::colour getPieceColour();
+        bool isWhite();
 
     protected:
         // ctra::board& m_board;
@@ -48,9 +47,11 @@ namespace ctra
         // ctra::square m_location;
     };
 
-    
+    // helper function to create a new piece of a derived class type
+    std::shared_ptr<ctra::piece> newPiece(pieceID id, colour c);
 
-    // Specific piece classes
+
+    // Specific (derived) piece classes
 
     class king : public piece
     {
@@ -111,7 +112,5 @@ namespace ctra
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
     };
-
-    std::shared_ptr<ctra::piece> newPiece(pieceID id, colour c);
     
 }
