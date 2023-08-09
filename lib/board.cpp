@@ -150,6 +150,10 @@ namespace ctra
         {
             return moveResult::FRIENDLY_CAPTURE;
         }
+        if (!m_placement[src]->getValidMoves(src, *this).count(dest))
+        {
+            return moveResult::ILLEGAL;
+        }
 
         // TODO: check if the move is actually legal within chess rules
 
