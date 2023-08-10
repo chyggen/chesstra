@@ -2,11 +2,11 @@
 
 namespace ctra
 {
-
     king::king(colour c) : piece(c) {}
     king::~king() {}
 
-    std::set<square> king::getValidMoves(square loc, const board& boardRef)
+    std::set<square> king::getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks)
     {
         std::set<square> moves;
         std::pair<int,int> loc_coords = getCoords(loc);
@@ -23,6 +23,11 @@ namespace ctra
                     
                     if (tmp != SQUARE_INVALID) // TODO: don't consider squares attacked by enemy pieces 
                     {
+                        if (checkAttacks)
+                        {
+                            // All squares bordering the king are always attacked
+                            moves.insert(tmp);
+                        }
                         if (boardRef.at(tmp) == nullptr) 
                         {
                             // Add squares not occupied by any piece
@@ -38,6 +43,10 @@ namespace ctra
             }
         }
 
+        // //also check castling options 
+        // {
+        //     boardRef.at()
+        // }
         return moves;
     }
 

@@ -174,6 +174,38 @@ namespace ctra
         m_whiteToMove = !m_whiteToMove;
     }
 
+    void board::updateAttackStats()
+    {
+        // First, clear the previous attack stats
+        for (int i = 0; i < 64; ++i)
+        {    
+            m_attackStats[i].reset();
+        }
+
+        for (int i = 0; i < 64; ++i)
+        {
+            square sq = static_cast<square>(i);
+
+            //if theres a piece on the square 
+            if (m_placement[sq] != nullptr)
+            {
+                // add the sqaures the piece is attacking to the attackStats
+                for (square mov : m_placement[sq]->getValidMoves(sq, *this, true))
+                {
+                    m_attackStats[mov].attackedBy.insert(sq);
+                    if (m_placement[sq]->isWhite())
+                    {
+                        m_attackStats[mov].white = true;
+                    }
+                    else
+                    {
+                        m_attackStats[mov].black = true;
+                    }
+                }
+            }
+        }
+    }
+
     ctra::square getSquare(int x, int y) 
     {
         if( x > 7 || x < 0 || y > 7 || y < 0 )

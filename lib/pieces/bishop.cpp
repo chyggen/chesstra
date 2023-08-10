@@ -5,7 +5,8 @@ namespace ctra
     bishop::bishop(colour c) : piece(c) {}
     bishop::~bishop() {}
 
-    std::set<square> bishop::getValidMoves(square loc, const board& boardRef)
+    std::set<square> bishop::getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks)
     {
         std::set<square> moves;
         std::pair<int,int> loc_coords = getCoords(loc);
@@ -41,8 +42,13 @@ namespace ctra
                     }
                     else
                     {
-                        // The sqaure under consideration is occupied by a friendly piece, 
-                        // the bishop cannot move to it or past it. End search.
+                        // The sqaure under consideration is occupied by a friendly piece.
+                        // Only add it if we are checking attacks
+                        if (checkAttacks)
+                        {
+                            moves.insert(tmp);
+                        }
+                        // The bishop cannot move past it. End search.
                         break;
                     }
                 }

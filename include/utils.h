@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 namespace ctra
 {
     enum square
@@ -14,4 +16,23 @@ namespace ctra
         A1, B1, C1, D1, E1, F1, G1, H1,
         SQUARE_INVALID
     };
+
+    struct sqaureAttackStats
+    {
+        bool white; // true if attacked by white
+        bool black; // true if attacked by black
+
+        // contains the squares of the pieces which attack this square.
+        // Used to implement logic of pieces pinned to the king:
+        std::set<square> attackedBy; 
+
+        void reset() 
+        {
+            white = false;
+            black = false;
+            attackedBy.clear();
+        }
+    };
 }   
+
+

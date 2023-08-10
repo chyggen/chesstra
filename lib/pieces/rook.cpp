@@ -5,7 +5,8 @@ namespace ctra
     rook::rook(colour c) : piece(c) {}
     rook::~rook() {}
 
-    std::set<square> rook::getValidMoves(square loc, const board& boardRef)
+    std::set<square> rook::getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks)
     {
         std::set<square> moves;
         std::pair<int,int> loc_coords = getCoords(loc);
@@ -42,8 +43,13 @@ namespace ctra
                     }
                     else
                     {
-                        // The sqaure under consideration is occupied by a friendly piece, 
-                        // the rook cannot move to it or past it. End search.
+                        // The sqaure under consideration is occupied by a friendly piece.
+                        // Only add it if we are checking attacks
+                        if (checkAttacks)
+                        {
+                            moves.insert(tmp);
+                        }
+                        // The rook cannot move past it. End search.
                         break;
                     }
                 }

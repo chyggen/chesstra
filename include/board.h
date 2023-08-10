@@ -55,6 +55,7 @@ namespace ctra
         bool whiteToMove() const {return m_whiteToMove;}
         square enPassentTarget() const {return m_enPassantTarget;}
         unsigned int fullmoveCounter() const {return m_fullmoveCounter;}
+        sqaureAttackStats attackStats(square sq) const {return m_attackStats[sq];}
 
     private:
 
@@ -70,9 +71,12 @@ namespace ctra
 
         // Other usefull fields for move logic
         bool m_wasPromotion;
+        std::array<sqaureAttackStats, 64> m_attackStats;
+        
 
         void updateBoardFlags(square src, square dest);
 
+        void updateAttackStats();
         
     };
 

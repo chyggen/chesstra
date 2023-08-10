@@ -5,7 +5,8 @@ namespace ctra
     knight::knight(colour c) : piece(c) {}
     knight::~knight() {}
 
-    std::set<square> knight::getValidMoves(square loc, const board& boardRef)
+    std::set<square> knight::getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks)
     {
         std::set<square> moves;
         std::pair<int,int> loc_coords = getCoords(loc);
@@ -15,6 +16,7 @@ namespace ctra
         // move vectors
         std::set<std::pair<int,int>> move_vecs = {
             {2,1}, {2,-1}, {-2,1}, {-2,-1}, {1,2}, {1,-2}, {-1,2}, {-1,-2}};
+
         for (std::pair<int,int> vec : move_vecs)
         {
             int tmpx = loc_coords.first + vec.first;
@@ -32,7 +34,12 @@ namespace ctra
                     // Add squares occupied by capturable enemy pieces
                     moves.insert(tmp);
                 }
-                // Don't add squares occupied by friendly pieces, 
+                else if (checkAttacks)
+                {
+                    // If were checking attacks, add squares occupied by friendly pieces
+                    moves.insert(tmp);
+                }
+                // Don't add squares occupied by friendly pieces if we aren't checking attacks
             }
         }
         return moves;

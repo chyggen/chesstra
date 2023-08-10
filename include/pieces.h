@@ -35,7 +35,13 @@ namespace ctra
         // piece is not default constructible
         piece() = delete;
 
-        virtual std::set<ctra::square> getValidMoves(square loc, const board& boardRef) = 0;
+        /** Get the valid moves of the piece.
+         * loc: the starting location of the piece
+         * boardRef: a reference to the game's board instance
+         * checkAttacks: option to 
+        */
+        virtual std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks = false) = 0;
         // virtual std::string algebraic(ctra::square); // gets a move in algebraic notation
         virtual std::string getDisplayChar() = 0; 
         virtual ctra::pieceID getPieceId() = 0; 
@@ -59,7 +65,8 @@ namespace ctra
         king(ctra::colour c);
         ~king() override;
 
-        std::set<ctra::square> getValidMoves(square loc, const board& boardRef) override;
+        std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks) override;
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
     };
@@ -70,7 +77,8 @@ namespace ctra
         queen(ctra::colour c);
         ~queen() override;
 
-        std::set<ctra::square> getValidMoves(square loc, const board& boardRef) override;
+        std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks) override;
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
     };
@@ -81,7 +89,8 @@ namespace ctra
         rook(ctra::colour c);
         ~rook() override;
 
-        std::set<ctra::square> getValidMoves(square loc, const board& boardRef) override;
+        std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks) override;
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
     };
@@ -92,7 +101,8 @@ namespace ctra
         bishop(ctra::colour c);
         ~bishop() override;
 
-        std::set<ctra::square> getValidMoves(square loc, const board& boardRef) override;
+        std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks) override;
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
     };
@@ -103,7 +113,8 @@ namespace ctra
         knight(ctra::colour c);
         ~knight() override;
 
-        std::set<ctra::square> getValidMoves(square loc, const board& boardRef) override;
+        std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks) override;
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
     };
@@ -114,14 +125,11 @@ namespace ctra
         pawn(ctra::colour c);
         ~pawn() override;
 
-        std::set<ctra::square> getValidMoves(square loc, const board& boardRef) override;
+        std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks) override;
         std::string getDisplayChar() override;
         ctra::pieceID getPieceId() override;
 
-        bool hasMoved() {return m_hasMoved;}
-
-    private: 
-        bool m_hasMoved;
     };
 
 }

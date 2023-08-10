@@ -5,7 +5,8 @@ namespace ctra
     queen::queen(colour c) : piece(c) {}
     queen::~queen() {}
 
-    std::set<square> queen::getValidMoves(square loc, const board& boardRef)
+    std::set<square> queen::getValidMoves(square loc, const board& boardRef,
+            bool checkAttacks)
     {
         std::set<square> moves;
         std::pair<int,int> loc_coords = getCoords(loc);
@@ -42,8 +43,13 @@ namespace ctra
                     }
                     else
                     {
-                        // The sqaure under consideration is occupied by a friendly piece, 
-                        // the queen cannot move to it or past it. End search.
+                        // The sqaure under consideration is occupied by a friendly piece.
+                        // Only add it if we are checking attacks
+                        if (checkAttacks)
+                        {
+                            moves.insert(tmp);
+                        }
+                        // the queen cannot move past it. End search.
                         break;
                     }
                 }

@@ -45,7 +45,5 @@ namespace ctra
         default:
             throw std::runtime_error("invalid piece ID passed to newPiece");
         }
-        
-
     }
 }
