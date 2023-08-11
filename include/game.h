@@ -24,6 +24,9 @@ namespace ctra
             // values less than 0 indicate a draw
             DRAW_AGREEMENT = -1
         };
+
+        game() = default;
+        game(const std::string& fen);
         
         void start();
 

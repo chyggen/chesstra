@@ -42,10 +42,12 @@ namespace ctra
     public:
 
         board();
+        board(const std::string& fen);
+
         ~board();
 
         std::string exportFen() const; 
-        bool importFen(std::string fen);
+        bool importFen(const std::string& fen);
         std::shared_ptr<piece> at(square sq) const;
         std::shared_ptr<piece> at(int x, int y) const;
         bool assignPiece(pieceID id, colour c, square sq);
@@ -73,7 +75,6 @@ namespace ctra
         bool m_wasPromotion;
         std::array<sqaureAttackStats, 64> m_attackStats;
         
-
         void updateBoardFlags(square src, square dest);
 
         void updateAttackStats();
@@ -82,4 +83,6 @@ namespace ctra
 
     square getSquare(int x, int y); 
     std::pair<int,int> getCoords(square sq); 
+    
+
 }

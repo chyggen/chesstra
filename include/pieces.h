@@ -16,7 +16,7 @@ namespace ctra
         rook,
         king,
         queen,
-        empty
+        INVALID
     };
 
     enum class colour
@@ -24,6 +24,9 @@ namespace ctra
         white,
         black
     };
+    
+    pieceID fenCharToPieceId(char c);
+    char pieceIdToFenChar(pieceID piece, colour c);
 
     // Base piece class. A square containing a piece of this class acts like an empty square
     class piece
@@ -38,7 +41,7 @@ namespace ctra
         /** Get the valid moves of the piece.
          * loc: the starting location of the piece
          * boardRef: a reference to the game's board instance
-         * checkAttacks: option to 
+         * checkAttacks: option to also include squares the piece attacks but cant move to
         */
         virtual std::set<ctra::square> getValidMoves(square loc, const board& boardRef,
             bool checkAttacks = false) = 0;

@@ -3,13 +3,21 @@
 #include <iostream>
 #include <stdexcept>
 #include <cassert>
+#include <cstdio>
 
 namespace ctra
 {
-
     bool isLegal(moveResult r)
     {
         return static_cast<int>(r) >= 0;
+    }
+
+    board::board(const std::string& fen)
+    {
+        if (!importFen(fen))
+        {
+            throw std::runtime_error("Invalid Fen");
+        }
     }
 
     board::board()
@@ -60,38 +68,151 @@ namespace ctra
 
     }
 
-    board::~board()
+    bool board::importFen(const std::string& fen)
     {
-        // for (int y = 0; y < 8; ++y)
-        // {
-        //     for (int x = 0; x < 8; ++x)
-        //     {
-        //         if (m_placement[getSquare(x,y)] != nullptr)
-        //         {
-        //             m_placement[getSquare(x,y)].reset();
-        //         }
-        //     }
-        // }
+        // find the locations of the seperating spaces
+        std::size_t space1 = fen.find(' ');
+        std::size_t space2 = fen.find(' ', space1 + 1);
+        std::size_t space3 = fen.find(' ', space2 + 1);
+        std::size_t space4 = fen.find(' ', space3 + 1);
+        std::size_t space5 = fen.find(' ', space4 + 1); 
+        std::size_t fenEnd = fen.find(' ', space5 + 1); // should be npos if the fen is valid
+
+        if (space1 == std::string::npos || space2 == std::string::npos ||
+            space3 == std::string::npos || space4 == std::string::npos ||
+            space5 == std::string::npos || fenEnd != std::string::npos) 
+        {
+            // incorrect number of space, invalid FEN
+            return false; 
+        }
+
+
+        // step 1: parse piece placement
+        int rank = 7, file = 0;
+        for (int i = 0; i < space1; ++i)
+        {
+            char ch = fen[i];
+
+            if (ch == '/') 
+            {
+                if (file != 8)
+                {
+                    // not 8 pieces in a rank, invalid FEN
+                    return false;
+                }
+                rank--;
+                file = 0; 
+            }
+            else if (isdigit(ch)) 
+            {
+                file += ch - '0';
+            } 
+            else if (isalpha(ch)) 
+            {
+                pieceID p = fenCharToPieceId(ch);
+                if (p == pieceID::INVALID)
+                {
+                    // not a valid FEN char, invalid FEN
+                    return false;
+                }
+                colour c = isupper(ch) ? colour::white : colour::black;
+                square sq = getSquare(file,rank);
+                assignPiece(p, c, sq);
+                file++;
+            }
+            else // found invalid characters
+            {
+                return false;
+            } 
+        }
+
+
+        // step 2: parse active player
+        if (fen[space1 + 1] == 'w')
+        {
+            m_whiteToMove = true;
+        }
+        else if (fen[space1 + 1] == 'b')
+        {
+            m_whiteToMove = false; 
+        }
+        else
+        {
+            // invalid active player char, invalid FEN
+            return false;
+        }
+
+        // step 3: parse castling rights
+        for (int i = space2 + 1; i < space3; ++i)
+        {   
+            // valid options
+            if (fen[i] == 'K' ||  fen[i] == 'Q' || fen[i] == 'k' || fen[i] == 'q' )
+            {
+                m_castlingRights.insert(fen[i]);
+            }
+            else if (fen[i] != '-') // '-' indicates no castling rights, only other valid char
+            {
+                // invalid character for castling rights, invalid FEN
+                return 0;
+            }
+        }
+
+        // step 4: parse en-passant square
+        if (fen[space3 + 1] != '-')
+        {
+            char x = fen[space3 + 1] - 'a';
+            char y = fen[space3 + 2] - '1';
+            square sq = getSquare(x, y);
+            if (sq != SQUARE_INVALID)
+            {
+                m_enPassantTarget = sq;
+            }
+            else
+            {
+                // invalid en-passant sqaure, invalid FEN
+                return false;
+
+            }
+        }
+                                            
+        // steps 5 & 6: parse half-move clock and full-move number
+        if (!std::sscanf(fen.c_str() + space4 + 1, "%d %d", &m_halfmoveClock,  &m_fullmoveCounter))
+        {
+            // Failed to parse half-move clock and full-move number, invalid FEN
+            return false;
+        }
+
+        // If this point is reached, we have a valid FEN
+        return true;
     }
+
+    board::~board()
+    {}
 
     std::shared_ptr<ctra::piece> board::at(ctra::square sq) const
     {
         int index = static_cast<int>(sq);
         if (index >= 0 && index < 64)
         {
-            std::cout << m_placement[index] << std::endl;
             return m_placement[index];
         }
         else
         {
             throw std::runtime_error("invalid square provided to board::at");
         }
-            
     }
 
     std::shared_ptr<ctra::piece> board::at(int x, int y) const
     {
-        return m_placement[8*y +x];
+        int index = 8 * y + x;
+        if (index >= 0 && index < 64)
+        {
+            return m_placement[index];
+        }
+        else
+        {
+            throw std::runtime_error("invalid coords provided to board::at");
+        }
     }
 
     bool board::assignPiece(ctra::pieceID id, ctra::colour c, ctra::square sq)

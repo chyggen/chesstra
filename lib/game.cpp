@@ -3,6 +3,9 @@
 
 namespace ctra
 {
+    game::game(const std::string& fen) : board(fen), disp()
+    {}
+    
     void game::start()
     {
         writeGameStatus(board.fullmoveCounter(), board.whiteToMove(), status::IN_PROG);
