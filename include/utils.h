@@ -17,6 +17,8 @@ namespace ctra
         SQUARE_INVALID
     };
 
+
+
     struct sqaureAttackStats
     {
         bool white; // true if attacked by white

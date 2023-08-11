@@ -43,10 +43,53 @@ namespace ctra
             }
         }
 
-        // //also check castling options 
-        // {
-        //     boardRef.at()
-        // }
+        // Also check castling options. Note that in order for castling to be legal, no pieces can occupy
+        // the squares between the involved king and rook and the king cannot pass through check. 
+        if (boardRef.at(loc)->isWhite())
+        {
+            // If the king is white, castling castling rights are denoted by upper case
+            // and moves the king to g1 or c1
+            if (boardRef.castlingRights().count('K') && 
+                boardRef.at(F1) == nullptr && 
+                boardRef.at(G1) == nullptr &&
+                !boardRef.attackStats(F1).black &&
+                !boardRef.attackStats(G1).black)
+            {
+                moves.insert(G1);
+            }
+            if (boardRef.castlingRights().count('Q') && 
+                boardRef.at(D1) == nullptr && 
+                boardRef.at(C1) == nullptr &&
+                boardRef.at(B1) == nullptr &&
+                !boardRef.attackStats(D1).black &&
+                !boardRef.attackStats(C1).black)
+            {
+                moves.insert(C1);
+            }
+
+        }
+        else
+        {
+            // If the king is black, castling castling rights are denoted by lower case
+            // and moves the king to g8 or c8
+            if (boardRef.castlingRights().count('k') && 
+                boardRef.at(F8) == nullptr && 
+                boardRef.at(G8) == nullptr &&
+                !boardRef.attackStats(F8).white &&
+                !boardRef.attackStats(G8).white)
+            {
+                moves.insert(G8);
+            }
+            if (boardRef.castlingRights().count('q') &&
+                boardRef.at(D8) == nullptr &&
+                boardRef.at(C8) == nullptr &&
+                boardRef.at(B8) == nullptr &&
+                !boardRef.attackStats(D8).white &&
+                !boardRef.attackStats(C8).white)
+            {
+                moves.insert(C8);
+            }
+        }
         return moves;
     }
 

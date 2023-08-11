@@ -41,27 +41,32 @@ namespace ctra
     {
     public:
 
-        board();
+        board() = default;
         board(const std::string& fen);
 
-        ~board();
+        ~board() = default;
 
+        void init(const std::string& fen);
         std::string generateFEN() const; 
         bool importFen(const std::string& fen);
         std::shared_ptr<piece> at(square sq) const;
         std::shared_ptr<piece> at(int x, int y) const;
+        bool removePiece(square sq);
         bool assignPiece(pieceID id, colour c, square sq);
         moveResult movePiece(square src, square dest);
+        void updateAttackStats();
+
 
         // getters
         bool whiteToMove() const {return m_whiteToMove;}
         square enPassentTarget() const {return m_enPassantTarget;}
+        std::set<char> castlingRights() const {return m_castlingRights;}
         unsigned int fullmoveCounter() const {return m_fullmoveCounter;}
         sqaureAttackStats attackStats(square sq) const {return m_attackStats[sq];}
+        
 
     private:
 
-        // game& m_gameRef;
 
         // Fen Fields
         std::array<std::shared_ptr<piece>, 64> m_placement;
@@ -72,12 +77,11 @@ namespace ctra
         unsigned int m_fullmoveCounter;
 
         // Other usefull fields for move logic
-        bool m_wasPromotion;
         std::array<sqaureAttackStats, 64> m_attackStats;
         
         void updateBoardFlags(square src, square dest);
-
-        void updateAttackStats();
+        void postMoveUpdates(square src, square dest);
+        
         
     };
 

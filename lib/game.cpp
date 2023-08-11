@@ -1,17 +1,25 @@
 #include "game.h"
 #include <sstream>
+#include <fstream>
+#include <ctime>
 
 namespace ctra
 {
-    game::game(const std::string& fen) : board(fen), disp()
-    {}
+    game::~game() 
+    {
+        if (autoSave)
+        {
+            exportPGN();
+        }
+    }
     
     void game::start()
     {
-        writeGameStatus(board.fullmoveCounter(), board.whiteToMove(), status::IN_PROG);
-        
+        board.init(fen);
         disp.updateBoard(board);
+        writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
         
+        // loop until the quit command is received
         for (;;)
         {
             std::string str = disp.readUserInput();
@@ -38,7 +46,7 @@ namespace ctra
                     disp.writeUserOutput("invalid move"); 
                 }
                 disp.updateBoard(board);
-                writeGameStatus(board.fullmoveCounter(), board.whiteToMove(), status::IN_PROG);
+                writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
             }
             else
             {
@@ -47,28 +55,100 @@ namespace ctra
                     static_cast<int>(c);
                 disp.writeUserOutput(ss.str());
             }
-        
         }
     }
 
-    void game::writeGameStatus(unsigned int fullmoveCount, bool whiteToMove, game::status stat)
+    void game::writeGameStatus(unsigned int fullmoveCount, bool whiteToMove)
     {
         std::stringstream msg;
         msg << fullmoveCount << ". ";
-        switch (stat)
+        switch (status)
         {
-            case game::status::IN_PROG:
+            case game::gameStatus::IN_PROG:
                 msg << (whiteToMove ? "White to move" : "Black to move");
                 break;
 
-            case game::status::CHECKMATE:
+            case game::gameStatus::CHECKMATE:
                 msg << (whiteToMove ? "Black is victorious!" : "White is victorious!");
                 break;
 
-            case game::status::DRAW_AGREEMENT:
+            case game::gameStatus::DRAW_AGREEMENT:
                 msg << "Game drawn by agreement";
                 break;
         }
         disp.writeGameStatus(msg.str());
     }
+
+    std::string game::getResultStr()
+    {
+        switch (status)
+        {
+            case gameStatus::IN_PROG:
+                return "*";
+            case gameStatus::CHECKMATE:
+                return board.whiteToMove() ? "0-1" : "1-0";
+            case gameStatus::DRAW_AGREEMENT:
+                return "1/2-1/2";
+            default:
+                return "?";
+        }
+    }
+
+    bool game::exportPGN()
+    {
+        std::string resultStr = getResultStr();
+        std::string plyCount = std::to_string(
+            2 * board.fullmoveCounter() - (board.whiteToMove() ? 2 : 1));
+
+        std::string filename =  eventName + "_" + whiteName + "v" + blackName + "_" + 
+                                resultStr + "_" + plyCount + ".pgn"; 
+
+        std::ofstream pgnFile(filename);
+
+        if (pgnFile.is_open()) 
+        {
+            // File opened successfully, write pgn data to it
+
+            // Get the current time
+            std::time_t currentTime;
+            std::time(&currentTime);
+
+            // Convert the time to a local time struct
+            std::tm* localTime = std::localtime(&currentTime);
+
+            // Extract date components
+            int year = localTime->tm_year + 1900; // Years since 1900
+            int month = localTime->tm_mon + 1;    // Months are 0-based
+            int day = localTime->tm_mday;
+
+            // step 1: write tag pairs
+            pgnFile << "[Event \"" << eventName << "\"]\n";
+            pgnFile << "[Site \"ChessTra Analysis\"]\n";
+            pgnFile << "[Date \"" << year << "." << month << "." << day << "\"]\n";
+            pgnFile << "[Round \"?\"]\n";
+            pgnFile << "[White \"" << whiteName << "\"]\n";
+            pgnFile << "[Black \"" << blackName << "\"]\n";
+            pgnFile << "[Result \"" << resultStr << "\"]\n";
+            pgnFile << "[PlyCount \"" << plyCount << "\"]\n";
+            // if game started from fen, add fen string
+            if (startFromFen)
+            {
+                pgnFile << "[FEN \"" << fen << "\"]\n";
+            }
+
+            pgnFile << std::endl;
+
+            // step 2: write moves
+
+
+            pgnFile.close();
+            return true;
+        } 
+        else 
+        {
+            // Failed to open the file
+            return false;
+        }
+    }
+
 }

@@ -12,64 +12,13 @@ namespace ctra
         return static_cast<int>(r) >= 0;
     }
 
-    board::board(const std::string& fen)
+    void board::init(const std::string& fen)
     {
         if (!importFen(fen))
         {
             throw std::runtime_error("Invalid Fen");
         }
     }
-
-    board::board() 
-    {
-        // fill the board in the default position
-        assignPiece(ctra::pieceID::rook,      ctra::colour::white, ctra::A1);
-        assignPiece(ctra::pieceID::knight,    ctra::colour::white, ctra::B1);
-        assignPiece(ctra::pieceID::bishop,    ctra::colour::white, ctra::C1);
-        assignPiece(ctra::pieceID::queen,     ctra::colour::white, ctra::D1);
-        assignPiece(ctra::pieceID::king,      ctra::colour::white, ctra::E1);
-        assignPiece(ctra::pieceID::bishop,    ctra::colour::white, ctra::F1);
-        assignPiece(ctra::pieceID::knight,    ctra::colour::white, ctra::G1);
-        assignPiece(ctra::pieceID::rook,      ctra::colour::white, ctra::H1);
-
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::A2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::B2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::C2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::D2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::E2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::F2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::G2);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::white, ctra::H2);
-
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::A7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::B7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::C7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::D7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::E7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::F7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::G7);
-        assignPiece(ctra::pieceID::pawn,      ctra::colour::black, ctra::H7);
-
-        assignPiece(ctra::pieceID::rook,      ctra::colour::black, ctra::A8);
-        assignPiece(ctra::pieceID::knight,    ctra::colour::black, ctra::B8);
-        assignPiece(ctra::pieceID::bishop,    ctra::colour::black, ctra::C8);
-        assignPiece(ctra::pieceID::queen,     ctra::colour::black, ctra::D8);
-        assignPiece(ctra::pieceID::king,      ctra::colour::black, ctra::E8);
-        assignPiece(ctra::pieceID::bishop,    ctra::colour::black, ctra::F8);
-        assignPiece(ctra::pieceID::knight,    ctra::colour::black, ctra::G8);
-        assignPiece(ctra::pieceID::rook,      ctra::colour::black, ctra::H8);
-
-        // set the FEN fields for the starting position
-        m_whiteToMove = true;
-        m_castlingRights = {'K', 'Q', 'k', 'q'};
-        m_enPassantTarget = SQUARE_INVALID;
-        m_halfmoveClock = 0;
-        m_fullmoveCounter = 1;
-
-    }
-
-    board::~board()
-    {}
 
     bool board::importFen(const std::string& fen)
     {
@@ -88,7 +37,6 @@ namespace ctra
             // incorrect number of space, invalid FEN
             return false; 
         }
-
 
         // step 1: parse piece placement
         int rank = 7, file = 0;
@@ -160,7 +108,11 @@ namespace ctra
         }
 
         // step 4: parse en-passant square
-        if (fen[space3 + 1] != '-')
+        if (fen[space3 + 1] == '-')
+        {
+            m_enPassantTarget = SQUARE_INVALID;
+        }
+        else 
         {
             char x = fen[space3 + 1] - 'a';
             char y = fen[space3 + 2] - '1';
@@ -291,6 +243,27 @@ namespace ctra
         }
     }
 
+    bool board::removePiece(square sq)
+    {
+        int index = static_cast<int>(sq);
+        if (index >= 0 && index < 64)
+        {
+            if (m_placement[index] != nullptr)
+            {
+                m_placement[index].reset();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            throw std::runtime_error("invalid square provided to removePiece");
+        }
+    }
+
     bool board::assignPiece(ctra::pieceID id, ctra::colour c, ctra::square sq)
     {
         int index = static_cast<int>(sq);
@@ -303,6 +276,7 @@ namespace ctra
             }
             else
             {
+                m_placement[index] = newPiece(id, c);
                 return false;
             }
         }
@@ -357,6 +331,7 @@ namespace ctra
         // If no invalid move cases were triggered, update the board flags and move the piece
         updateBoardFlags(src, dest);
         m_placement[dest] = std::move(m_placement[src]);
+        postMoveUpdates(src, dest);
 
         // Update some fen fields 
 
@@ -368,7 +343,139 @@ namespace ctra
         // If it was black's turn, update the fullmove count
         m_fullmoveCounter += (!m_whiteToMove ? 1 : 0);
 
+        // Switch turns
         m_whiteToMove = !m_whiteToMove;
+
+        // update the halfmove clock
+        if (at(src)->getPieceId() == pieceID::pawn || 
+            at(dest) != nullptr)
+        {
+            // on pawn moves or captures, reset the clock
+            m_halfmoveClock = 0;
+        }
+        else
+        {
+            // On other moves, increment the clock
+            ++m_halfmoveClock;
+        }
+    }
+
+    void board::postMoveUpdates(square src, square dest)
+    {
+        // If the king is moving, we must remove castling rights and check if the move itself is a castle
+        if (at(dest)->getPieceId() == pieceID::king)
+        {
+            // check if the king is on the starting square 
+            if (at(dest)->isWhite() && src == E1)
+            {
+                // check if the king is moving to a castling position
+                if (dest == G1)
+                {
+                    m_placement[F1] = std::move(m_placement[H1]);
+                }
+                else if (dest == C1)
+                {
+                    m_placement[D1] = std::move(m_placement[A1]);
+                }
+                // otherwise, no castle has occured. 
+                // in any case, we remove white's castling rights:
+                m_castlingRights.erase('K');
+                m_castlingRights.erase('Q');
+            }
+            // do the same for black
+            if (!at(dest)->isWhite() && src == E8)
+            {
+                if (dest == G8)
+                {
+                    m_placement[F8] = std::move(m_placement[H8]);
+                }
+                else if (dest == C8)
+                {
+                    m_placement[D8] = std::move(m_placement[A8]);
+                }
+                m_castlingRights.erase('k');
+                m_castlingRights.erase('q');
+            }
+        }
+
+        // If a rook is moving from its starting square, we must remove castling rights
+        if (at(dest)->getPieceId() == pieceID::rook)
+        {
+            if (at(dest)->isWhite())
+            {
+                if (src == H1)
+                {
+                    m_castlingRights.erase('K');
+                }
+                else if (src == A1)
+                {
+                    m_castlingRights.erase('Q');
+                }
+            }
+            else  
+            {
+                if (src == H8)
+                {
+                    m_castlingRights.erase('k');
+                }
+                else if (src == A8)
+                {
+                    m_castlingRights.erase('q');
+                }
+
+            }
+        }
+
+        // If a pawn is moving, there are several cases to check:
+        if (at(dest)->getPieceId() == pieceID::pawn)
+        {
+            int srcx = getCoords(src).first;
+            int srcy = getCoords(src).second;
+            int destx = getCoords(dest).first;
+            int desty = getCoords(dest).second;
+            
+            // If a pawn is moving to the en-passant target, we must capture (remove) 
+            // the pawn in front of the target
+            if(dest == m_enPassantTarget)
+            {
+                if (at(dest)->isWhite())
+                {
+                    removePiece(getSquare(destx, desty - 1));
+                }
+                else
+                {
+                    removePiece(getSquare(destx, desty + 1));
+                }
+            }
+
+            // If a pawn moves two squares, we must add en-passant target
+            if (at(dest)->isWhite() && desty == 3 && srcy == 1)
+            {
+                // target will be the sqaure behind the destination
+                m_enPassantTarget = getSquare(destx, 2);
+            }
+            else if (!at(dest)->isWhite() && desty == 4 && srcy == 6)
+            {
+                // target will be the sqaure behind the destination
+                m_enPassantTarget = getSquare(destx, 5);
+            }
+            else
+            {
+                // if no pawn moved two squares, remove the en-passant target
+                m_enPassantTarget = SQUARE_INVALID;
+            }
+
+            // If a pawn reaches the back rank, auto-promote to a queen 
+            // (other promotion types are not currently supported)
+            if (at(dest)->isWhite() && desty == 7)
+            {
+                assignPiece(pieceID::queen, colour::white, dest);
+            }
+            else if (!at(dest)->isWhite() && desty == 0)
+            {
+                assignPiece(pieceID::queen, colour::black, dest);
+            }
+        }
     }
 
     void board::updateAttackStats()
