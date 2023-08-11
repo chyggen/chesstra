@@ -20,7 +20,7 @@ namespace ctra
         }
     }
 
-    board::board()
+    board::board() 
     {
         // fill the board in the default position
         assignPiece(ctra::pieceID::rook,      ctra::colour::white, ctra::A1);
@@ -67,6 +67,9 @@ namespace ctra
         m_fullmoveCounter = 1;
 
     }
+
+    board::~board()
+    {}
 
     bool board::importFen(const std::string& fen)
     {
@@ -126,7 +129,6 @@ namespace ctra
             } 
         }
 
-
         // step 2: parse active player
         if (fen[space1 + 1] == 'w')
         {
@@ -171,7 +173,6 @@ namespace ctra
             {
                 // invalid en-passant sqaure, invalid FEN
                 return false;
-
             }
         }
                                             
@@ -186,8 +187,83 @@ namespace ctra
         return true;
     }
 
-    board::~board()
-    {}
+    std::string board::generateFEN() const 
+    {
+        std::string fen = "";
+        int emptyCount = 0;
+
+        // step 1: generate position field
+        for (int rank = 0; rank < 8; ++rank) 
+        {
+            for (int file = 0; file < 8; ++file) 
+            {
+                if (at(file, rank) != nullptr)
+                {
+                    if (emptyCount > 0) {
+                        fen += std::to_string(emptyCount);
+                        emptyCount = 0;
+                    }
+                    pieceID p = at(file, rank)->getPieceId();
+                    colour c = at(file, rank)->getPieceColour();
+                    fen += pieceIdToFenChar(p, c);
+                }
+                else {
+                    emptyCount++;
+                }
+            }
+            if (emptyCount > 0) 
+            {
+                fen += std::to_string(emptyCount);
+                emptyCount = 0;
+            }
+            if (rank != 7) 
+            {
+                fen += "/";
+            }
+        }
+        fen += " ";
+
+        // step 2: generate active player
+        fen += m_whiteToMove ? "w " : "b ";
+
+        // step 3: generate castling rights
+        if (m_castlingRights.empty())
+        {
+            fen += "-";
+        }
+        else
+        {
+            for (char c : m_castlingRights)
+            {
+                fen += c;
+            }
+        }
+        fen += " ";
+        
+        // step 4: generate en passant target
+        if (m_enPassantTarget != SQUARE_INVALID)
+        {
+            std::pair<int,int> coords = getCoords(m_enPassantTarget);
+            fen += static_cast<char>(coords.first + 'a');
+            fen += static_cast<char>(coords.second + '1');
+        }
+        else
+        {
+            fen += "-";
+        }
+        fen += " ";
+
+        // step 5: generate halfmove clock
+        fen += std::to_string(m_halfmoveClock);
+        fen += " ";
+
+
+        //step 6: generate fullmove counter
+        fen += std::to_string(m_fullmoveCounter);
+        fen += " ";
+
+        return fen;
+    }
 
     std::shared_ptr<ctra::piece> board::at(ctra::square sq) const
     {

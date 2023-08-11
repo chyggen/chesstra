@@ -46,7 +46,7 @@ namespace ctra
 
         ~board();
 
-        std::string exportFen() const; 
+        std::string generateFEN() const; 
         bool importFen(const std::string& fen);
         std::shared_ptr<piece> at(square sq) const;
         std::shared_ptr<piece> at(int x, int y) const;

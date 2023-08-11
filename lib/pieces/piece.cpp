@@ -40,7 +40,7 @@ namespace ctra
         }
     }
 
-    char pieceToFenChar(pieceID piece, colour c)
+    char pieceIdToFenChar(pieceID piece, colour c)
     {
         switch (piece)
         {

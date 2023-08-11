@@ -39,6 +39,7 @@ namespace ctra
             ctra::display::COMMAND_WIN_X);
         m_userOutWin = newwin(2, 30, 3, 20);
         m_gameStatusWin = newwin(1, 20, 1, 20);
+        m_fenWin = newwin(2, 90, 10, 0);
         
     }
 
@@ -56,6 +57,12 @@ namespace ctra
                 wrefresh(m_sqaures[y][x]);
             }
         }
+
+        std::string fenWinMsg = std::string("FEN:\n") + b.generateFEN().c_str();
+
+        wclear(m_fenWin);
+        wprintw(m_fenWin, fenWinMsg.c_str());
+        wrefresh(m_fenWin);
     }
 
     std::string display::readUserInput()

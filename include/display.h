@@ -23,6 +23,7 @@ namespace ctra
         void writeGameStatus(const std::string str);
         void writeUserOutput(const std::string str);
         void updateBoard(const ctra::board& b);
+        
 
         ~display();
 
@@ -34,6 +35,7 @@ namespace ctra
         WINDOW* m_commandWin;
         WINDOW* m_gameStatusWin;
         WINDOW* m_userOutWin;
+        WINDOW* m_fenWin;
 
 
         static const int COMMAND_WIN_Y = 6;
