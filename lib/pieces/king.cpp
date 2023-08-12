@@ -20,25 +20,30 @@ namespace ctra
                 if (x != 0 || y != 0)
                 {
                     square tmp = getSquare(loc_coords.first + x, loc_coords.second + y);
-                    
-                    if (tmp != SQUARE_INVALID) // TODO: don't consider squares attacked by enemy pieces 
+                    if (tmp != SQUARE_INVALID)
                     {
                         if (checkAttacks)
                         {
                             // All squares bordering the king are always attacked
                             moves.insert(tmp);
                         }
-                        if (boardRef.at(tmp) == nullptr) 
+
+                        bool squareAttacked = (boardRef.at(loc)->isWhite() ? 
+                            boardRef.attackStats(tmp).black : boardRef.attackStats(tmp).white);
+                        if (!squareAttacked)
                         {
-                            // Add squares not occupied by any piece
-                            moves.insert(tmp);
+                            if (boardRef.at(tmp) == nullptr) 
+                            {
+                                // Add squares not occupied by any piece
+                                moves.insert(tmp);
+                            }
+                            else if (boardRef.at(tmp)->getPieceColour() != this->getPieceColour()) 
+                            {
+                                // Add squares occupied by capturable enemy pieces
+                                moves.insert(tmp);
+                            }
                         }
-                        else if (boardRef.at(tmp)->getPieceColour() != this->getPieceColour()) 
-                        {
-                            // Add squares occupied by capturable enemy pieces
-                            moves.insert(tmp);
-                        }
-                    }
+                    } 
                 }
             }
         }

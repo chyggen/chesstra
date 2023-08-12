@@ -4,30 +4,41 @@
 #include <chrono>
 #include <thread>
 #include "game.h"
+#include "board.h"
 
 int main()
 {
-    std::setlocale(LC_ALL, "");
-    ctra::display d;
-    d.writeGameStatus("1. White to move");
-
     ctra::board b;
-    d.updateBoard(b);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    b.importFen("r3k2r/pppq1ppp/2n5/1B1pp1Bn/1b1PP1bN/2N5/PPPQ1PPP/R3K2R w KQkq - 12 9");
+    b.updateAttackStats();
 
-    b.movePiece(ctra::E2, ctra::E4);
-    d.updateBoard(b);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << "black attacks:\n";
+    for (int y = 7; y >=0 ; y--)
+    {
+        for (int x = 0; x < 8; x++)
+        {
+            ctra::square sq = ctra::getSquare(x, y);
+            std::cout << b.attackStats(sq).black << " ";
+        }
+        std::cout << std::endl;
+    }
 
-    b.movePiece(ctra::D7, ctra::D5);
-    d.updateBoard(b);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << "white attacks:\n";
+    for (int y = 7; y >=0 ; y--)
+    {
+        for (int x = 0; x < 8; x++)
+        {
+            ctra::square sq = ctra::getSquare(x, y);
+            std::cout << b.attackStats(sq).white << " ";
+        }
+        std::cout << std::endl;
+    }
 
-    b.movePiece(ctra::E4, ctra::D5);
-    d.updateBoard(b);
-    
-    // pause until enter is pressed
-    d.readUserInput();
+    for (auto sq : b.at(ctra::E1)->getValidMoves(ctra::E1, b))
+    {
+          std::cout << ctra::getCoords(sq).first << ", " << ctra::getCoords(sq).second << std::endl;
+        //   std::cout << b.at(sq)->getDisplayChar() << std::endl;
+    }
 
     return 0;
 }

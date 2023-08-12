@@ -136,6 +136,7 @@ namespace ctra
         }
 
         // If this point is reached, we have a valid FEN
+        updateAttackStats();
         return true;
     }
 
@@ -326,8 +327,6 @@ namespace ctra
             return moveResult::ILLEGAL;
         }
 
-        // TODO: check if the move is actually legal within chess rules
-
         // If no invalid move cases were triggered, update the board flags and move the piece
         updateBoardFlags(src, dest);
         m_placement[dest] = std::move(m_placement[src]);
@@ -476,6 +475,9 @@ namespace ctra
                 assignPiece(pieceID::queen, colour::black, dest);
             }
         }
+
+        // All movements are done: update the attack stats
+        updateAttackStats();
     }
 
     void board::updateAttackStats()
