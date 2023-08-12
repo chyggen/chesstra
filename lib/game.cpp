@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <ctime>
+#include <stdexcept>
 
 namespace ctra
 {
@@ -15,7 +16,16 @@ namespace ctra
     
     void game::start()
     {
-        board.init(fen);
+        try
+        {
+            board.init(fen);
+        }
+        catch (const std::runtime_error& e)
+        {
+            std::cout << "invalid FEN" << std::endl;
+            return;
+        }
+        
         disp.updateBoard(board);
         writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
         
@@ -80,6 +90,8 @@ namespace ctra
                 {
                     status = gameStatus::RESIGNATION;
                     moveText << getResultStr();
+                    writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
+
                 }
                 else
                 {
@@ -92,6 +104,8 @@ namespace ctra
                 {
                     status = gameStatus::DRAW_AGREEMENT;
                     moveText << getResultStr();
+                    writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
+
                 }
                 else
                 {
@@ -101,6 +115,7 @@ namespace ctra
             else if (c == command::MOVE_COMMENT)
             {
                 moveText << " {" << str.substr(4) << "} ";
+                disp.writeUserOutput("comment added");
             }
             else if (c == command::GET_PGN)
             {
@@ -126,6 +141,7 @@ namespace ctra
                 break;
 
             case game::gameStatus::CHECKMATE:
+            case game::gameStatus::RESIGNATION:
                 msg << (whiteToMove ? "Black is victorious!" : "White is victorious!");
                 break;
 
@@ -143,6 +159,7 @@ namespace ctra
             case gameStatus::IN_PROG:
                 return "*";
             case gameStatus::CHECKMATE:
+            case gameStatus::RESIGNATION:
                 return board.whiteToMove() ? "0-1" : "1-0";
             case gameStatus::DRAW_AGREEMENT:
                 return "1/2-1/2";
@@ -154,6 +171,12 @@ namespace ctra
     bool game::exportPGN()
     {
         std::string resultStr = getResultStr();
+        // cannot use "/" character in filenames, so if draw must rename result str
+        if (resultStr == "1/2-1/2")
+        {
+            resultStr = "draw";
+        }
+
         std::string plyCount = std::to_string(
             2 * board.fullmoveCounter() - (board.whiteToMove() ? 2 : 1));
 
