@@ -14,6 +14,9 @@ Once the display is on screen, use the following commands to operate the softwar
 
     <square1> <square2> : moves a piece from square1 to square2 
     pgn                 : save the game to a pgn file in the current directory
+    com <txt>           : adds a comment to the pgn file
+    resign              : ends the game with a resignation for the active player
+    draw                : ends the game with a draw agreement
     quit                : exits the application
 
 by running the chesstra application with ./chesstra, several command line options can be used:
