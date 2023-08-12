@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <cassert>
 #include <cstdio>
+#include <fstream>
 
 namespace ctra
 {
@@ -328,7 +329,7 @@ namespace ctra
         }
 
         // If no invalid move cases were triggered, update the board flags and move the piece
-        updateBoardFlags(src, dest);
+        preMoveUpdates(src, dest);
         m_placement[dest] = std::move(m_placement[src]);
         postMoveUpdates(src, dest);
 
@@ -337,30 +338,23 @@ namespace ctra
         return moveResult::OKAY;
     }
 
-    void board::updateBoardFlags(ctra::square src, ctra::square dest)
+    void board::preMoveUpdates(ctra::square src, ctra::square dest)
     {
-        // If it was black's turn, update the fullmove count
-        m_fullmoveCounter += (!m_whiteToMove ? 1 : 0);
-
-        // Switch turns
-        m_whiteToMove = !m_whiteToMove;
-
-        // update the halfmove clock
-        if (at(src)->getPieceId() == pieceID::pawn || 
-            at(dest) != nullptr)
-        {
-            // on pawn moves or captures, reset the clock
-            m_halfmoveClock = 0;
-        }
-        else
-        {
-            // On other moves, increment the clock
-            ++m_halfmoveClock;
-        }
+        // flag weather a capture is occuring
+        m_algFlags.isCapture = (at(dest) != nullptr) ? true : false;
     }
 
     void board::postMoveUpdates(square src, square dest)
     {
+        // Reset Algebraic notation flags
+        m_algFlags.isCheck = false;
+        m_algFlags.isMate = false;
+        m_algFlags.isPromotion = false;
+        m_algFlags.disambiguateWithX = false;
+        m_algFlags.disambiguateWithY = false;
+        m_algFlags.isQCastle = false;
+        m_algFlags.isKCastle = false;
+
         // If the king is moving, we must remove castling rights and check if the move itself is a castle
         if (at(dest)->getPieceId() == pieceID::king)
         {
@@ -371,10 +365,12 @@ namespace ctra
                 if (dest == G1)
                 {
                     m_placement[F1] = std::move(m_placement[H1]);
+                    m_algFlags.isKCastle = true;
                 }
                 else if (dest == C1)
                 {
                     m_placement[D1] = std::move(m_placement[A1]);
+                    m_algFlags.isQCastle = true;
                 }
                 // otherwise, no castle has occured. 
                 // in any case, we remove white's castling rights:
@@ -387,10 +383,12 @@ namespace ctra
                 if (dest == G8)
                 {
                     m_placement[F8] = std::move(m_placement[H8]);
+                    m_algFlags.isKCastle = true;
                 }
                 else if (dest == C8)
                 {
                     m_placement[D8] = std::move(m_placement[A8]);
+                    m_algFlags.isQCastle = true;
                 }
                 m_castlingRights.erase('k');
                 m_castlingRights.erase('q');
@@ -469,15 +467,93 @@ namespace ctra
             if (at(dest)->isWhite() && desty == 7)
             {
                 assignPiece(pieceID::queen, colour::white, dest);
+                m_algFlags.isPromotion = true;
             }
             else if (!at(dest)->isWhite() && desty == 0)
             {
                 assignPiece(pieceID::queen, colour::black, dest);
+                m_algFlags.isPromotion = true;
             }
         }
 
-        // All movements are done: update the attack stats
+        // All piece movements are done: update the attack stats
         updateAttackStats();
+
+        // Check the updated attack stats to see if enemy king is in check
+        for (int i = 0; i < 64; ++i)
+        {
+            square sq = static_cast<square>(i);
+            if (at(sq) != nullptr && at(sq)->getPieceId() == pieceID::king &&
+                at(sq)->getPieceColour() != at(dest)->getPieceColour())
+            {
+                // i is now the index of the enemy king
+                square sqKing = static_cast<square>(i);
+                if ((at(dest)->isWhite() && attackStats(sqKing).white) ||
+                    (!at(dest)->isWhite() && attackStats(sqKing).black))
+                {
+                // check is happening!
+                    if (at(sqKing)->getValidMoves(sqKing, *this).empty())
+                    {
+                        // king has no moves, checkmate!
+                        m_algFlags.isMate = true;
+                    }
+                    else
+                    {
+                        // King can escape, just check
+                        m_algFlags.isCheck = true;
+                    }
+                }
+                
+                break;
+
+            }
+        }
+
+        // Check if there is another piece of the same type which could
+        // have performed the move. This is done by seeing if the moving
+        // piece now attacks a friendly piece of the same type, or for
+        // pawn captures.
+        for (square sq : at(dest)->getValidMoves(dest, *this, true))
+        {
+            if ((at(sq) != nullptr) && (at(sq)->getPieceId() == at(dest)->getPieceId()) &&
+                (at(sq)->getPieceColour() == at(dest)->getPieceColour()) &&
+                (at(dest)->getPieceId() != pieceID::pawn) )
+            {
+                // Ambiguous move! First try to disambiguate with the file
+                if (getCoords(src).first != getCoords(sq).first)
+                {
+                    m_algFlags.disambiguateWithX = true;
+                }
+                else // If that didnt work, disambiguate with the rank
+                {
+                    m_algFlags.disambiguateWithY = true;
+                }
+            }
+        }
+        // pawn capture case
+        if (m_algFlags.isCapture && at(dest)->getPieceId() == pieceID::pawn)
+        {
+            m_algFlags.disambiguateWithX = true;
+        }
+
+        // If it was black's turn, update the fullmove count
+        m_fullmoveCounter += (!m_whiteToMove ? 1 : 0);
+
+        // Switch turns
+        m_whiteToMove = !m_whiteToMove;
+
+        // update the halfmove clock
+        if (at(dest)->getPieceId() == pieceID::pawn || 
+            m_algFlags.isCapture)
+        {
+            // on pawn moves or captures, reset the clock
+            m_halfmoveClock = 0;
+        }
+        else
+        {
+            // On other moves, increment the clock
+            ++m_halfmoveClock;
+        }
     }
 
     void board::updateAttackStats()

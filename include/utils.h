@@ -17,15 +17,13 @@ namespace ctra
         SQUARE_INVALID
     };
 
-
-
+    // structure which describes what pieces attack a square
     struct sqaureAttackStats
     {
         bool white; // true if attacked by white
         bool black; // true if attacked by black
 
         // contains the squares of the pieces which attack this square.
-        // Used to implement logic of pieces pinned to the king:
         std::set<square> attackedBy; 
 
         void reset() 
@@ -35,6 +33,21 @@ namespace ctra
             attackedBy.clear();
         }
     };
+
+    // structure which describes algebraic move notation modifiers
+    struct algebraicNotationFlags
+    {
+        bool isCapture;
+        bool isCheck;
+        bool isMate;
+        bool isPromotion;
+        bool disambiguateWithX;
+        bool disambiguateWithY;
+        bool isQCastle;
+        bool isKCastle;
+    };
+
+    
 }   
 
 

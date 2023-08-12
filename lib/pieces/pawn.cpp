@@ -1,6 +1,5 @@
 #include "pieces.h"
 #include <iostream>
-#include <fstream>
 
 namespace ctra
 {
@@ -14,14 +13,9 @@ namespace ctra
         std::pair<int,int> loc_coords = getCoords(loc);
         square tmp;
 
-        std::ofstream oFile;
-        oFile.open("pawnDebug.txt");
-
         // The pawn is the most unique piece in terms of movement. First, we need to determine 
         // what direction is considered forward:
         int forward = (boardRef.at(loc)->isWhite() ? 1 : -1);
-
-        oFile << "forward: " << forward << std::endl;
 
         // Second, we check what non-capture options the pawn has. Since a pawn does not attack
         // straight forwards, only add these if we arent checking the pawn's attacks
@@ -30,7 +24,6 @@ namespace ctra
         {
             // Check if the square directly in front of the pawn is empty:
             tmp = getSquare(loc_coords.first, loc_coords.second + forward);
-            oFile << "tmp: " << static_cast<int>(tmp) << std::endl;
             if ((tmp != SQUARE_INVALID) && (boardRef.at(tmp) == nullptr))
             {
                 moves.insert(tmp);
@@ -73,14 +66,6 @@ namespace ctra
         {
             moves.insert(tmp);
         }
-
-        oFile << "moves: ";
-        for (auto mov : moves)
-        {
-            oFile << static_cast<int>(mov);
-        }
-        oFile << std::endl;
-        oFile.close();
 
         return moves;
     }

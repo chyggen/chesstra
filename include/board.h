@@ -63,6 +63,7 @@ namespace ctra
         std::set<char> castlingRights() const {return m_castlingRights;}
         unsigned int fullmoveCounter() const {return m_fullmoveCounter;}
         sqaureAttackStats attackStats(square sq) const {return m_attackStats[sq];}
+        algebraicNotationFlags algFlags() const {return m_algFlags;}
         
 
     private:
@@ -79,10 +80,11 @@ namespace ctra
         // Other usefull fields for move logic
         std::array<sqaureAttackStats, 64> m_attackStats;
         
-        void updateBoardFlags(square src, square dest);
+        // Flags for algebraic notation
+        algebraicNotationFlags m_algFlags;
+
+        void preMoveUpdates(square src, square dest);
         void postMoveUpdates(square src, square dest);
-        
-        
     };
 
     square getSquare(int x, int y); 

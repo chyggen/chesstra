@@ -39,6 +39,16 @@ namespace ctra
                 moveResult move_res = board.movePiece(sq_pair.first, sq_pair.second);
                 if (isLegal(move_res)) 
                 {
+                    // write to movetext
+                    if (!board.whiteToMove())
+                    {
+                        moveText << board.fullmoveCounter() << ". " << 
+                        algebraicMove(sq_pair.first, sq_pair.second) << " ";
+                    }
+                    else
+                    {
+                        moveText << algebraicMove(sq_pair.first, sq_pair.second) << " ";
+                    }
                     disp.writeUserOutput("valid move"); 
                 }
                 else 
@@ -139,7 +149,7 @@ namespace ctra
             pgnFile << std::endl;
 
             // step 2: write moves
-
+            pgnFile << moveText.str();
 
             pgnFile.close();
             return true;
@@ -149,6 +159,84 @@ namespace ctra
             // Failed to open the file
             return false;
         }
+    }
+
+    std::string game::algebraicMove(square src, square dest)
+    {
+        algebraicNotationFlags flags = board.algFlags();
+        std::string str = "";
+        
+        // If the move is a castle, we ignore most steps
+        if (flags.isQCastle)
+        {
+            str += "O-O-O";
+        }
+        if (flags.isKCastle)
+        {
+            str += "O-O";
+        }
+        else
+        {
+            // Not a castle, start with piece identifier
+            switch (board.at(dest)->getPieceId())
+            {
+                case pieceID::king:
+                   str += "K";
+                   break; 
+                case pieceID::queen:
+                   str += "Q";
+                   break; 
+                case pieceID::rook:
+                   str += "R";
+                   break; 
+                case pieceID::bishop:
+                   str += "B";
+                   break; 
+                case pieceID::knight:
+                   str += "N";
+                   break;
+                // no identifier for pawns
+            }
+
+            // Next is disambiguation mofifiers
+            if(flags.disambiguateWithX)
+            {
+                str += (getCoords(src).first + 'a');
+            }
+            if(flags.disambiguateWithY)
+            {
+                str += (getCoords(src).second + '1');
+            }
+
+            // Next is capture mofifier 
+            if(flags.isCapture)
+            {
+                str += "x";
+            }
+
+            // Next is destination square
+            str += (getCoords(dest).first + 'a');
+            str += (getCoords(dest).second + '1');
+
+            // Next is promotions
+            if(flags.isPromotion)
+            {
+                // only queen promotions supported
+                str += "=Q";
+            }
+        }
+        
+        // last is check / checkmate 
+        if (flags.isCheck)
+        {
+            str += "+";
+        }
+        else if(flags.isMate)
+        {
+            str += "#";
+        }
+
+        return str;
     }
 
 }

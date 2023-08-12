@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include "pieces.h"
 #include "display.h"
@@ -41,8 +42,6 @@ namespace ctra
 
         void start();
 
-        //void addMove();
-
         bool startFromFen = false;
         bool autoSave = false;
 
@@ -57,14 +56,14 @@ namespace ctra
         ctra::board board;
         gameStatus status = gameStatus::IN_PROG;
 
-        std::vector<std::string> movelog;
+        std::stringstream moveText;
 
         void writeGameStatus(unsigned int fullmoveCount, bool whiteToMove);
 
         std::string getResultStr();
         bool exportPGN();
 
-
+        std::string algebraicMove(square dest, square src);
 
     };
 };
