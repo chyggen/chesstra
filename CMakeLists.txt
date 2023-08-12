@@ -59,3 +59,9 @@ add_executable(board_test app/board_test.cpp
 target_include_directories(board_test PUBLIC include ${CURSES_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 add_compile_options(-lncursesw)
 target_link_libraries(board_test PUBLIC ${NCURSESW_LIBRARY})
+
+# Install the program
+install(TARGETS chesstra DESTINATION bin)
+
+# Install the demo script.
+install(PROGRAMS demo DESTINATION bin)
