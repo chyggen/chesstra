@@ -13,5 +13,16 @@ cmd_dir=$(dirname "$0") || panic "cannot determine command directory"
 chesstra_program="$cmd_dir/chesstra"
 
 echo "Running ChessTra"
-$chesstra_program || panic "ChessTra program failed"
+( sleep 5; echo "quit" ) | $chesstra_program
+
+
+
+
+
+
+
+
+
+
+
 
