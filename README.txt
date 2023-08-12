@@ -10,14 +10,6 @@ To run a demonstration, use the command:
 
     $INSTALL_DIR/bin/demo
 
-Once the display is on screen, use the following commands to operate the software:
-
-    <square1> <square2> : moves a piece from square1 to square2 
-    pgn                 : save the game to a pgn file in the current directory
-    com <txt>           : adds a comment to the pgn file
-    resign              : ends the game with a resignation for the active player
-    draw                : ends the game with a draw agreement
-    quit                : exits the application
 
 by running the chesstra application with ./chesstra, several command line options can be used:
 
@@ -26,4 +18,13 @@ by running the chesstra application with ./chesstra, several command line option
     -w <name>       : provides a name for the white player in PGN exports
     -b <name>       : provides a name for the black player in PGN exports
     -e <name>       : provides an event name in PGN exports
+
+Once the display is on screen, use the following commands to operate the software:
+
+    <square1> <square2> : moves a piece from square1 to square2 
+    pgn                 : save the game to a pgn file in the current directory
+    com <txt>           : adds a comment to the pgn file
+    resign              : ends the game with a resignation for the active player
+    draw                : ends the game with a draw agreement
+    quit                : exits the application
 
