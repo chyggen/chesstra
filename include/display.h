@@ -24,7 +24,6 @@ namespace ctra
         void writeUserOutput(const std::string str);
         void updateBoard(const ctra::board& b);
         
-
         ~display();
 
     private:
@@ -36,7 +35,6 @@ namespace ctra
         WINDOW* m_gameStatusWin;
         WINDOW* m_userOutWin;
         WINDOW* m_fenWin;
-
 
         static const int COMMAND_WIN_Y = 6;
         static const int COMMAND_WIN_X = 20;

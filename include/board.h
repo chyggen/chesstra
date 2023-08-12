@@ -56,7 +56,6 @@ namespace ctra
         moveResult movePiece(square src, square dest);
         void updateAttackStats();
 
-
         // getters
         bool whiteToMove() const {return m_whiteToMove;}
         square enPassentTarget() const {return m_enPassantTarget;}
@@ -64,10 +63,8 @@ namespace ctra
         unsigned int fullmoveCounter() const {return m_fullmoveCounter;}
         sqaureAttackStats attackStats(square sq) const {return m_attackStats[sq];}
         algebraicNotationFlags algFlags() const {return m_algFlags;}
-        
 
     private:
-
 
         // Fen Fields
         std::array<std::shared_ptr<piece>, 64> m_placement;
@@ -89,6 +86,4 @@ namespace ctra
 
     square getSquare(int x, int y); 
     std::pair<int,int> getCoords(square sq); 
-    
-
 }

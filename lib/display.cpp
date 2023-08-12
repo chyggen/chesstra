@@ -34,11 +34,11 @@ namespace ctra
 
         wrefresh(m_yCoordWin);
 
-        m_commandWin = newwin(1, 30, 
+        m_commandWin = newwin(2, 80, 
             ctra::display::COMMAND_WIN_Y, 
             ctra::display::COMMAND_WIN_X);
-        m_userOutWin = newwin(2, 30, 3, 20);
-        m_gameStatusWin = newwin(1, 20, 1, 20);
+        m_userOutWin = newwin(2, 80, 3, 20);
+        m_gameStatusWin = newwin(1, 30, 1, 20);
         m_fenWin = newwin(2, 90, 10, 0);
         
     }

@@ -32,6 +32,7 @@ namespace ctra
 
             // values greater than 0 indicate a victory
             CHECKMATE = 1,
+            RESIGNATION = 2,
 
             // values less than 0 indicate a draw
             DRAW_AGREEMENT = -1

@@ -12,12 +12,12 @@ namespace ctra
     {
         INVALID = -1,
         MOVE_TWO_SQUARE,
-        MOVE_ALGEBRAIC,
-        MOVE_UNDO,
+        MOVE_ALGEBRAIC, // unimplemented, must use two_square
+        MOVE_UNDO,      // unimplemented
         MOVE_COMMENT,
         GAME_RESIGN,
         GAME_DRAW,
-        GET_FEN,
+        GET_FEN, // unimplemented, FEN on display instead
         GET_PGN,
         QUIT
     };

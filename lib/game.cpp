@@ -22,6 +22,7 @@ namespace ctra
         // loop until the quit command is received
         for (;;)
         {
+            // Blocking read
             std::string str = disp.readUserInput();
             command c = command_parser::identifyCommand(str);
 
@@ -35,34 +36,80 @@ namespace ctra
             }
             else if (c == command::MOVE_TWO_SQUARE)
             {
-                auto sq_pair = command_parser::parseTwoSquare(str);
-                moveResult move_res = board.movePiece(sq_pair.first, sq_pair.second);
-                if (isLegal(move_res)) 
+                if (status == gameStatus::IN_PROG)
                 {
-                    // write to movetext
-                    if (!board.whiteToMove())
+                    auto sq_pair = command_parser::parseTwoSquare(str);
+                    moveResult move_res = board.movePiece(sq_pair.first, sq_pair.second);
+                    if (isLegal(move_res)) 
                     {
-                        moveText << board.fullmoveCounter() << ". " << 
-                        algebraicMove(sq_pair.first, sq_pair.second) << " ";
+                        // write to movetext
+                        if (!board.whiteToMove())
+                        {
+                            moveText << board.fullmoveCounter() << ". " << 
+                            algebraicMove(sq_pair.first, sq_pair.second) << " ";
+                        }
+                        else
+                        {
+                            moveText << algebraicMove(sq_pair.first, sq_pair.second) << " ";
+                        }
+
+                        disp.writeUserOutput("valid move"); 
+
+                        // if a checkmate happened, end the game
+                        if (board.algFlags().isMate)
+                        {
+                            status = gameStatus::CHECKMATE;
+                            moveText << getResultStr();
+                        }
                     }
-                    else
+                    else 
                     {
-                        moveText << algebraicMove(sq_pair.first, sq_pair.second) << " ";
+                        disp.writeUserOutput("invalid move"); 
                     }
-                    disp.writeUserOutput("valid move"); 
+                    disp.updateBoard(board);
+                    writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
                 }
-                else 
+                else
                 {
-                    disp.writeUserOutput("invalid move"); 
+                    disp.writeUserOutput("cannot move pieces, game is over");
                 }
-                disp.updateBoard(board);
-                writeGameStatus(board.fullmoveCounter(), board.whiteToMove());
+            }
+            else if (c == command::GAME_RESIGN)
+            {
+                if (status == gameStatus::IN_PROG)
+                {
+                    status = gameStatus::RESIGNATION;
+                    moveText << getResultStr();
+                }
+                else
+                {
+                    disp.writeUserOutput("cannot resign, game is over");
+                }
+            }
+            else if (c == command::GAME_DRAW)
+            {
+                if (status == gameStatus::IN_PROG)
+                {
+                    status = gameStatus::DRAW_AGREEMENT;
+                    moveText << getResultStr();
+                }
+                else
+                {
+                    disp.writeUserOutput("cannot draw, game is over");
+                }
+            }
+            else if (c == command::MOVE_COMMENT)
+            {
+                moveText << " {" << str.substr(4) << "} ";
+            }
+            else if (c == command::GET_PGN)
+            {
+                exportPGN();
             }
             else
             {
                 std::stringstream ss;
-                ss << "command:" << std::endl << 
-                    static_cast<int>(c);
+                ss << "command unimplemented";
                 disp.writeUserOutput(ss.str());
             }
         }
